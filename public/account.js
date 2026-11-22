@@ -1,13 +1,13 @@
 import {renderCard,communityRoutes} from './community.js';
 import {url,key} from './config.js';
 
-export async function setupAccount(guestDraw) {
+export async function setupAccount() {
   const panel = document.getElementById('profileBody');
   const draw = document.getElementById('draw');
   const status = document.getElementById('status');
   if (!url || !key) {
     panel.innerHTML = '<h2>Гостевой доступ</h2><p>Пока сад открыт для знакомства. Попробуй листок омикудзи или посмотри коллекцию талисманов.</p><a class="login" href="#home">К омикудзи</a>';
-    return guestDraw;
+    return null;
   }
   const {createClient} = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm');
   const db = createClient(url,key);
@@ -46,21 +46,35 @@ export async function setupAccount(guestDraw) {
     }
   }
   draw.disabled = true;
+  let initialized;
+  const initialSession = new Promise(resolve => { initialized = resolve; });
   db.auth.onAuthStateChange((_event, session) => {
     current = session?.user ?? null;
+    initialized();
     document.getElementById('account').hidden = Boolean(current);
     document.getElementById('profileLink').hidden = !current;
     draw.disabled = false;
     if (current) {const user = current; setTimeout(() => profile(user),0);}
     else form();
   });
-  return async () => {
-    if (!current) return guestDraw();
-    const user = current;
-    const {data,error} = await db.rpc('draw_today');
-    if (error) throw error;
-    if (current !== user) throw new Error('Аккаунт изменился. Открой листки заново.');
-    void profile(user);
-    return Array.isArray(data) ? data[0] : data;
+  await initialSession;
+  return {
+    async saved() {
+      if (!current) return null;
+      const user = current;
+      const day = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Vladivostok'}).format(new Date());
+      const {data,error} = await db.from('omikuji_draws').select('outcome,reward')
+        .eq('user_id',user.id).eq('day',day).maybeSingle();
+      if (error || current?.id !== user.id) throw new Error('Не удалось проверить листок.');
+      return data;
+    },
+    async draw() {
+      if (!current) return null;
+      const user = current;
+      const {data,error} = await db.rpc('draw_today');
+      if (error || current?.id !== user.id) throw new Error('Не удалось открыть листок.');
+      void profile(user);
+      return Array.isArray(data) ? data[0] : data;
+    }
   };
 }
