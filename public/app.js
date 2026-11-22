@@ -71,10 +71,20 @@ function showHeroSlip(sign, title) {
   art.setAttribute('aria-label', 'Твой листок — ' + title);
 }
 
+drawReady
+  .then(account => account?.saved())
+  .then(saved => {
+    if (saved && outcomes[saved.outcome]) {
+      const [sign,title] = outcomes[saved.outcome];
+      showHeroSlip(sign, title);
+    }
+  })
+  .catch(() => {});
+
 function reveal(lot, {outcome,reward}, saved = false) {
   lastTrial = outcome;
   const [sign,title,message] = outcomes[outcome];
-  showHeroSlip(sign, title);
+  if (reward != null) showHeroSlip(sign, title);  
   lot.querySelector('.face').textContent = sign;
   $('fortune').textContent = title;
   $('advice').textContent = message;
