@@ -42,7 +42,7 @@ let trial = false;
 function resetPicker() {
   round++;
   $('tryLot').hidden = true;
-  result.classList.remove('revealed');
+  result.classList.remove('revealed','dealing');
   $('pickTitle').textContent = 'Выбери один листок';
   $('drawStatus').textContent = '';
   reading.hidden = true;
@@ -51,6 +51,12 @@ function resetPicker() {
     lot.classList.remove('chosen');
     lot.querySelector('.face').textContent = '';
   }
+}
+
+function offerSlips() {
+  result.classList.add('dealing');
+  for (const lot of lots) lot.disabled = false;
+  lots[0].focus();
 }
 
 function showHeroSlip(sign, title) {
@@ -91,6 +97,7 @@ function reveal(lot, {outcome,reward}, saved = false) {
   $('reward').textContent = reward == null ? 'Пробный листок · без начисления' : 'Удача за сегодня: +' + reward;
   $('drawStatus').textContent = saved ? 'Следующий ежедневный листок — после полуночи по Владивостоку.' : '';
   $('pickTitle').textContent = saved ? 'Твой листок на сегодня' : 'Твой листок';
+  result.classList.remove('dealing');
   lot.classList.add('chosen');
   result.classList.add('revealed');
   reading.hidden = false;
@@ -111,8 +118,7 @@ $('draw').onclick = async () => {
     if (!result.open || round !== ticket) return;
     if (saved) return reveal(lots[0], saved, true);
     $('drawStatus').textContent = '';
-    for (const lot of lots) lot.disabled = false;
-    lots[0].focus();
+    offerSlips();
   } catch {
     if (result.open && round === ticket) $('drawStatus').textContent = 'Не удалось проверить листок. Закрой окно и попробуй снова.';
   }
@@ -121,18 +127,23 @@ $('tryLot').onclick = () => {
   resetPicker();
   trial = true;
   $('pickTitle').textContent = 'Выбери пробный листок';
-  lots[0].focus();
+  offerSlips();
 };
 
 for (const lot of lots) {
   lot.onclick = async () => {
+    if (trial) {
+      for (const item of lots) item.disabled = true;
+      reveal(lot, guestDraw());
+      return;
+    }
     const ticket = round;
     for (const item of lots) item.disabled = true;
     $('drawStatus').textContent = 'Открываем листок…';
     try {
       const account = await drawReady;
       if (!result.open || ticket !== round) return;
-      const drawn = trial ? guestDraw() : (await account?.draw() ?? guestDraw());
+      const drawn = await account?.draw() ?? guestDraw();
       if (!result.open || ticket !== round) return;
       reveal(lot, drawn);
     } catch {

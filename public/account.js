@@ -61,14 +61,18 @@ export async function setupAccount() {
     else form();
   });
   await initialSession;
+  const calendar = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Vladivostok'});
+  let cachedSlip;
   return {
     async saved() {
       if (!current) return null;
       const user = current;
-      const day = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Vladivostok'}).format(new Date());
+      const day = calendar.format(new Date());
+      if (cachedSlip?.userId === user.id && cachedSlip.day === day) return cachedSlip.value;
       const {data,error} = await db.from('omikuji_draws').select('outcome,reward')
         .eq('user_id',user.id).eq('day',day).maybeSingle();
       if (error || current?.id !== user.id) throw new Error('Не удалось проверить листок.');
+      if (data) cachedSlip = {userId:user.id, day, value:data};
       return data;
     },
     async draw() {
@@ -77,7 +81,9 @@ export async function setupAccount() {
       const {data,error} = await db.rpc('draw_today');
       if (error || current?.id !== user.id) throw new Error('Не удалось открыть листок.');
       void profile(user);
-      return Array.isArray(data) ? data[0] : data;
+      const value = Array.isArray(data) ? data[0] : data;
+      cachedSlip = {userId:user.id, day:value.day, value};
+      return value;
     }
   };
 }
