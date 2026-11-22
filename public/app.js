@@ -53,9 +53,28 @@ function resetPicker() {
   }
 }
 
+function showHeroSlip(sign, title) {
+  const art = document.querySelector('.art');
+  const paper = art.querySelector('.front');
+  art.querySelector('.back').hidden = true;
+  paper.querySelector('strong').textContent = sign;
+  paper.querySelector('small').textContent = title;
+  Object.assign(paper.querySelector('small').style, {
+    fontSize: 'clamp(14px, 1.6vw, 23px)', letterSpacing: 'normal', textAlign: 'center'
+  });
+  Object.assign(paper.style, {
+    left: '50%', top: '14%', width: '33%', maxWidth: '180px',
+    transform: 'translateX(-50%) rotate(5deg)'
+  });
+  art.removeAttribute('aria-hidden');
+  art.setAttribute('role', 'img');
+  art.setAttribute('aria-label', 'Твой листок — ' + title);
+}
+
 function reveal(lot, {outcome,reward}, saved = false) {
   lastTrial = outcome;
   const [sign,title,message] = outcomes[outcome];
+  showHeroSlip(sign, title);
   lot.querySelector('.face').textContent = sign;
   $('fortune').textContent = title;
   $('advice').textContent = message;
