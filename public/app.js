@@ -25,7 +25,7 @@ const sourcePaper = document.querySelector('.art .front');
 const fortuneSlip = result.querySelector('.fortune-slip');
 let finishFlight;
 
-function flyFromIllustration() {
+function flyFromIllustration(sign) {
   const start = sourcePaper.getBoundingClientRect();
   if (!start.width || !sourcePaper.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -33,6 +33,7 @@ function flyFromIllustration() {
   const dx = start.left + start.width / 2 - end.left - end.width / 2;
   const dy = start.top + start.height / 2 - end.top - end.height / 2;
   const paper = sourcePaper.cloneNode(true);
+  paper.querySelector('strong').textContent = sign;
   paper.classList.add('flying-paper');
   paper.setAttribute('aria-hidden', 'true');
   Object.assign(paper.style, {
@@ -80,7 +81,7 @@ function showDraw(outcome, reward) {
   $('reward').textContent = reward == null ? 'Гостевой листок · без начисления удачи' : 'Удача за сегодня: +' + reward;
   if (result.open || $('home').hidden) return;
   result.showModal();
-  flyFromIllustration();
+  flyFromIllustration(sign);
 }
 function guestDraw() {
   const keys = Object.keys(outcomes);
