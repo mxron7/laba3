@@ -3,54 +3,38 @@
 #result {
   background: transparent;
   border: 0;
-  overflow: auto;
-  padding: 2rem 0.75rem 1rem;
+  overflow: visible;
+  padding: 0;
 }
 #result .close {
   z-index: 1;
-  top: 2.5rem;
-  right: 1.25rem;
+  top: .5rem;
+  right: .5rem;
   color: #74382d;
   background: #faefd9;
-  border-radius: 50%;
-}
-.slip-window {
-  position: relative;
-  overflow: hidden;
-  padding: 0.25rem 0.35rem 0;
-}
-.slip-window::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: #58372c;
   border-radius: 50%;
 }
 .fortune-slip {
   background: linear-gradient(110deg, #fff8e9, #f8e9cd);
   border: 4px double #ad7561;
+  box-shadow: 0 12px 32px #16282038;
   padding: 2.25rem 1.35rem 1.75rem;
-  transform-origin: bottom center;
+  max-height: 85dvh;
+  overflow: auto;
 }
+.paper.drawn { visibility: hidden; }
+#result .flying-paper {
+  position: fixed;
+  max-width: none;
+  margin: 0;
+  pointer-events: none;
+  text-align: start;
+}
+#result.in-flight .close:not(:focus-visible) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  #result[open] .fortune-slip {
-    animation: pull-slip 900ms cubic-bezier(.22,.75,.22,1) both;
-  }
-  #result[open] .close {
-    animation: reveal-close 900ms both;
-  }
-  @keyframes pull-slip {
-    0% { transform: translateY(100%) rotate(-3deg); }
-    25% { transform: translateY(81%) rotate(-2deg); }
-    42% { transform: translateY(78%) rotate(1deg); }
-    82% { transform: translateY(4%) rotate(-0.5deg); }
-    100% { transform: translateY(0); }
-  }
-  @keyframes reveal-close {
-    0%, 75% { opacity: 0; }
-    100% { opacity: 1; }
+  #result[open]::backdrop { animation: garden-dim 850ms both; }
+  @keyframes garden-dim {
+    from { background: transparent; }
+    to { background: #1b2c25aa; }
   }
 }
