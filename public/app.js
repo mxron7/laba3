@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 import {catalog, talismanImage} from './community.js';
-const pages = ['home','catalog','profile','ranking','player'];
+const pages = ['home','catalog','profile','ranking','player','mail','donate'];
 function route() {
   const section = location.hash.slice(1).split('/')[0];
   const page = pages.includes(section) ? section : 'home';
