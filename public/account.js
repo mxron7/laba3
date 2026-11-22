@@ -1,3 +1,4 @@
+import {renderCard,communityRoutes} from './community.js';
 import {url,key} from './config.js';
 
 export async function setupAccount(showDraw, guestDraw) {
@@ -10,6 +11,7 @@ export async function setupAccount(showDraw, guestDraw) {
   }
   const {createClient} = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm');
   const db = createClient(url,key);
+  communityRoutes(db);
   let current = null;
   let registering = false;
   function form() {
@@ -37,21 +39,17 @@ export async function setupAccount(showDraw, guestDraw) {
     };
   }
   async function profile(user) {
-    const {data,error} = await db.from('users').select('name,luck_balance,coin_balance').eq('id',user.id).single();
-    if (user !== current) return;
-    if (error) {status.textContent = error.message;return;}
-    panel.innerHTML = '<h2></h2><p></p><button>Выйти</button>';
-    panel.querySelector('h2').textContent = data.name;
-    panel.querySelector('p').textContent = 'Удача: ' + data.luck_balance + ' · Монеты: ' + data.coin_balance;
-    panel.querySelector('button').onclick = async () => {
-      const {error} = await db.auth.signOut();
-      if (error) status.textContent = error.message;
-    };
+    try {
+      await renderCard(db,panel,user.id,true,()=>current===user);
+    } catch {
+      if (current===user) panel.textContent = 'Не удалось загрузить профиль. Обнови страницу.';
+    }
   }
   draw.disabled = true;
   db.auth.onAuthStateChange((_event, session) => {
     current = session?.user ?? null;
-    document.getElementById('account').textContent = current ? 'Мой профиль' : 'Войти';
+    document.getElementById('account').hidden = Boolean(current);
+    document.getElementById('profileLink').hidden = !current;
     draw.disabled = false;
     if (current) {const user = current; setTimeout(() => profile(user),0);}
     else form();

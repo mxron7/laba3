@@ -1,7 +1,9 @@
 const $ = id => document.getElementById(id);
-const pages = ['home','catalog','profile'];
+import {catalog, talismanImage} from './community.js';
+const pages = ['home','catalog','profile','ranking','player'];
 function route() {
-  const page = pages.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  const section = location.hash.slice(1).split('/')[0];
+  const page = pages.includes(section) ? section : 'home';
   for (const id of pages) $(id).hidden = page !== id;
   for (const link of document.querySelectorAll('.links a')) {
     if (link.hash === '#' + page) link.setAttribute('aria-current','page');
@@ -87,16 +89,15 @@ function guestDraw() {
 $('draw').onclick = guestDraw;
 import {setupAccount} from './account.js';
 setupAccount(showDraw,guestDraw).catch(() => {
+  $('rankingBody').textContent = $('playerBody').textContent = 'Сервис временно недоступен. Обнови страницу.';
   $('profileBody').textContent = 'Сервис входа временно недоступен. Попробуй обновить страницу.';
 });
 async function loadCatalog() {
-  const response = await fetch('./catalog.json');
-  if (!response.ok) throw new Error();
-  for (const [,symbol,name,rarity,price,meaning,effect] of await response.json()) {
+  for (const [id,,name,rarity,price,meaning,effect] of await catalog) {
     const card = document.createElement('article');
-    for (const [tag,content] of [['b',symbol],['small',rarity+' · '+price+' монет'],['h3',name],['p',meaning],['p',effect]]) {
+    card.append(talismanImage(id));
+    for (const [tag,content] of [['small',rarity+' · '+price+' монет'],['h3',name],['p',meaning],['p',effect]]) {
       const element = document.createElement(tag);
-      if (tag === 'b') element.className = 'symbol';
       element.textContent = content;
       card.append(element);
     }

@@ -38,3 +38,60 @@
     to { background: #1b2c25aa; }
   }
 }
+
+@font-face {
+  font-family: 'Takashimura RUS';
+  src: url('./fonts/takashimura.woff') format('woff');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'East Sea Dokdo Cyrillic';
+  src: url('./fonts/east-sea.woff') format('woff');
+  font-display: swap;
+}
+:root {
+  --title: 'Takashimura RUS', Georgia, serif;
+  --body: 'East Sea Dokdo Cyrillic', system-ui, sans-serif;
+}
+body {font: 1.65rem/1.12 var(--body)}
+h1,h2,h3,.brand {font-family: var(--title); line-height: 1.14; letter-spacing: normal}
+h1 i {font-style: normal}
+button,input,select {font: inherit}
+button {line-height: 1}
+small,footer,.over,.grid small {font-size: 1.25rem}
+[hidden] {display: none !important}
+.masthead {width: min(1180px,92%); margin: auto; min-height: 78px; display: flex; align-items: center; justify-content: space-between}
+.brand {font-size: clamp(1.7rem,3vw,2.4rem)}
+.site-nav {display: block; position: sticky; top: 0; z-index: 4; width: 100%; min-height: 0; padding: 0; background: #faf7ef; border-bottom: 1px solid #d5d3c7}
+.site-nav .links {width: min(1180px,92%); margin: auto; display: flex; justify-content: flex-start; gap: clamp(.85rem,3vw,2.5rem); flex-wrap: wrap}
+.links a {padding: .55rem 0; line-height: 1}
+.grid article {display: flex; flex-direction: column; padding: 1.2rem; gap: .25rem}
+.charm-image {width: 100%; height: 160px; object-fit: contain; display: block; margin: .25rem auto 1rem}
+#profileBody,#playerBody {width: min(100%,760px); max-width: none; background: #f1efe4; border: 1px solid #ccc9b8; border-radius: 8px; padding: clamp(1rem,3vw,2rem)}
+.profile-heading {display:flex; align-items:center; gap:1rem; border-bottom:1px solid #cac8b6; padding-bottom:1rem}
+.profile-heading h2 {margin:0; overflow-wrap:anywhere; font-size:clamp(1.6rem,4vw,2.65rem)}
+.profile-stamp {display:grid;place-items:center; width:60px;height:60px; flex:none; border:4px double #f5dfc2; background:#863f33; color:#fff2df; font:36px serif; border-radius:6px; transform:rotate(-4deg)}
+.balances,.pin-grid {display:grid;gap:.75rem; margin:1.25rem 0;grid-template-columns:repeat(2,minmax(0,1fr))}
+.balances div {padding:.75rem 1rem; background:#e1e6d9;border-radius:4px}
+.balances span,.balances strong {display:block}
+.balances strong {color:#315349;font-size:2rem}
+.pin-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+.pin-slot {padding:.75rem;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:.5rem;border:1px solid #c9c4af;background:#faf7ef;border-radius:6px}
+.pin-slot .charm-image {height:95px;margin:0}
+.empty-pin {height:95px;display:grid;place-items:center;color:#8b7966;font:2rem serif}
+.pin-slot select {width:100%;font-size:1.25rem;background:#fffaf0;color:#60392e;border:1px solid #b5ad99;border-radius:4px}
+.profile-actions {display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.profile-actions a,footer a,.ranking-list a {text-decoration:underline;text-underline-offset:.16em}
+.ranking-list {max-width:760px;padding-left:2rem}
+.ranking-list li {border-bottom:1px solid #c9c4af;padding:.7rem;overflow-wrap:anywhere}
+.ranking-list strong {margin-left:1rem;color:#843c2e}
+footer {gap:.75rem;flex-wrap:wrap}
+@media(max-width:550px){
+  .masthead {min-height:64px}
+  .links a {font-size:1.45rem}
+  .pin-grid {grid-template-columns:1fr}
+  .pin-slot {display:grid;grid-template-columns:60px 1fr;text-align:left}
+  .pin-slot .charm-image,.empty-pin {height:54px}
+  .pin-slot select {grid-column:2}
+  .grid .charm-image {height:140px}
+}
