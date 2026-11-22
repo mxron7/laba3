@@ -129,9 +129,11 @@ export function setupPost(db, refreshProfile) {
   payment.onsubmit = async event => {
     event.preventDefault();
     if (!viewer || fields.disabled) return;
-    number.setCustomValidity(number.value.replace(/ /g,'') === '4242424242424242' ? '' : 'Введи номер тестовой карты из подсказки.');
-    expiry.setCustomValidity(expiry.value === '12/39' ? '' : 'Срок тестовой карты — 12/39.');
-    code.setCustomValidity(code.value === '123' ? '' : 'CVC тестовой карты — 123.');
+    number.setCustomValidity(/^\d{16}$/.test(number.value.replace(/ /g,'')) ? '' : 'Введи 16 цифр.');
+    const date = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(expiry.value);
+    const validUntil = date && new Date(2000 + Number(date[2]), Number(date[1]), 1);
+    expiry.setCustomValidity(validUntil && validUntil > new Date() ? '' : 'Укажи текущий или будущий месяц в формате ММ/ГГ.');
+    code.setCustomValidity(/^\d{3}$/.test(code.value) ? '' : 'Введи три цифры CVC.');
     if (!payment.reportValidity()) return;
     const owner = viewer, visit = checkoutVisit;
     const coins = Number(byId('package').value);
