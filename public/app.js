@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 import {catalog, talismanImage} from './community.js';
-const pages = ['home','catalog','profile','ranking','player','mail','donate'];
+const pages = ['home','catalog','profile','ranking','player'];
 function route() {
   const section = location.hash.slice(1).split('/')[0];
   const page = pages.includes(section) ? section : 'home';
@@ -41,7 +41,6 @@ const drawReady = setupAccount().catch(() => {
 let trial = false;
 function resetPicker() {
   round++;
-  result.classList.remove('dealing');
   $('tryLot').hidden = true;
   result.classList.remove('revealed');
   $('pickTitle').textContent = 'Выбери один листок';
@@ -72,10 +71,20 @@ function showHeroSlip(sign, title) {
   art.setAttribute('aria-label', 'Твой листок — ' + title);
 }
 
+drawReady
+  .then(account => account?.saved())
+  .then(saved => {
+    if (saved && outcomes[saved.outcome]) {
+      const [sign,title] = outcomes[saved.outcome];
+      showHeroSlip(sign, title);
+    }
+  })
+  .catch(() => {});
+
 function reveal(lot, {outcome,reward}, saved = false) {
   lastTrial = outcome;
   const [sign,title,message] = outcomes[outcome];
-  showHeroSlip(sign, title);
+  if (reward != null) showHeroSlip(sign, title);  
   lot.querySelector('.face').textContent = sign;
   $('fortune').textContent = title;
   $('advice').textContent = message;
@@ -101,7 +110,6 @@ $('draw').onclick = async () => {
     const saved = await account?.saved();
     if (!result.open || round !== ticket) return;
     if (saved) return reveal(lots[0], saved, true);
-    result.classList.add('dealing');
     $('drawStatus').textContent = '';
     for (const lot of lots) lot.disabled = false;
     lots[0].focus();
@@ -112,8 +120,6 @@ $('draw').onclick = async () => {
 $('tryLot').onclick = () => {
   resetPicker();
   trial = true;
-  void result.offsetWidth;
-  result.classList.add('dealing');
   $('pickTitle').textContent = 'Выбери пробный листок';
   lots[0].focus();
 };
