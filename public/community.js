@@ -103,7 +103,7 @@ export function communityRoutes(db) {
       const {data,error} = await db.rpc('generosity_ranking');
       if (ticket!==version) return;
       if (error) throw error;
-      if (!data.length) { panel.textContent='Здесь появятся участники после первого подарка или поддержки желания.'; return; }
+      if (!data.length) { panel.replaceChildren(); return; }
       const list = el('ol',null,'ranking-list');
       for (const row of data) {
         const li = el('li');

@@ -21,78 +21,65 @@ const outcomes = {
   poor:['凶','Плохая удача','Оставь время на отдых. Завтра тебя ждёт новый листок.']
 };
 const result = $('result');
-const sourcePaper = document.querySelector('.art .front');
-const fortuneSlip = result.querySelector('.fortune-slip');
-let finishFlight;
-
-function flyFromIllustration(sign) {
-  const start = sourcePaper.getBoundingClientRect();
-  if (!start.width || !sourcePaper.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  const end = fortuneSlip.getBoundingClientRect();
-  const dx = start.left + start.width / 2 - end.left - end.width / 2;
-  const dy = start.top + start.height / 2 - end.top - end.height / 2;
-  const paper = sourcePaper.cloneNode(true);
-  paper.querySelector('strong').textContent = sign;
-  paper.classList.add('flying-paper');
-  paper.setAttribute('aria-hidden', 'true');
-  Object.assign(paper.style, {
-    left: (end.left + end.width / 2) + 'px',
-    top: (end.top + end.height / 2) + 'px',
-    width: sourcePaper.offsetWidth + 'px',
-    height: sourcePaper.offsetHeight + 'px'
-  });
-  result.append(paper);
-  sourcePaper.classList.add('drawn');
-  result.classList.add('in-flight');
-
-  // Both faces meet edge-on at the destination before the prediction opens.
-  const center = 'translate(-50%, -50%)';
-  const face = paper.animate([
-    {transform: center + ` translate(${dx}px, ${dy}px) rotate(12deg)`},
-    {transform: center + ` translate(${dx + 8}px, ${dy - 28}px) rotate(16deg)`, offset: 0.26},
-    {transform: center + ' rotate(1deg) rotateY(0deg)', offset: 0.75},
-    {transform: center + ' rotateY(90deg)'}
-  ], {duration: 740, easing: 'ease-in-out', fill: 'both'});
-  const reveal = fortuneSlip.animate([
-    {transform: 'rotateY(-90deg) scale(.93)', opacity: 0},
-    {transform: 'rotateY(-86deg) scale(.94)', opacity: 1, offset: 0.04},
-    {transform: 'rotateY(0deg) scale(1)', opacity: 1}
-  ], {delay: 740, duration: 340, easing: 'ease-out', fill: 'both'});
-  finishFlight = () => {
-    face.cancel();
-    reveal.cancel();
-    paper.remove();
-    result.classList.remove('in-flight');
-    finishFlight = undefined;
-  };
-  reveal.onfinish = () => finishFlight?.();
-}
-
-result.addEventListener('close', () => {
-  finishFlight?.();
-  sourcePaper.classList.remove('drawn');
-});
-function showDraw(outcome, reward) {
-  const [sign,title,message] = outcomes[outcome];
-  $('sign').textContent = sign;
-  $('fortune').textContent = title;
-  $('advice').textContent = message;
-  $('reward').textContent = reward == null ? 'Гостевой листок · без начисления удачи' : 'Удача за сегодня: +' + reward;
-  if (result.open || $('home').hidden) return;
-  result.showModal();
-  flyFromIllustration(sign);
-}
+const lots = [...result.querySelectorAll('.lot')];
+const reading = $('reading');
+let round = 0;
 function guestDraw() {
   const keys = Object.keys(outcomes);
-  showDraw(keys[Math.floor(Math.random()*keys.length)]);
+  return {outcome: keys[Math.floor(Math.random() * keys.length)]};
 }
-$('draw').onclick = guestDraw;
 import {setupAccount} from './account.js';
-setupAccount(showDraw,guestDraw).catch(() => {
+const drawReady = setupAccount(guestDraw).catch(() => {
   $('rankingBody').textContent = $('playerBody').textContent = 'Сервис временно недоступен. Обнови страницу.';
   $('profileBody').textContent = 'Сервис входа временно недоступен. Попробуй обновить страницу.';
+  $('draw').disabled = false;
+  return guestDraw;
 });
+
+$('draw').onclick = () => {
+  round++;
+  result.classList.remove('revealed');
+  $('pickTitle').textContent = 'Выбери один листок';
+  $('drawStatus').textContent = '';
+  reading.hidden = true;
+  for (const lot of lots) {
+    lot.disabled = false;
+    lot.classList.remove('chosen');
+    lot.querySelector('.face').textContent = '';
+  }
+  result.showModal();
+  lots[0].focus();
+};
+
+for (const lot of lots) {
+  lot.onclick = async () => {
+    const ticket = round;
+    for (const item of lots) item.disabled = true;
+    $('drawStatus').textContent = 'Открываем листок…';
+    try {
+      const draw = await drawReady;
+      if (!result.open || ticket !== round) return;
+      const {outcome,reward} = await draw();
+      if (!result.open || ticket !== round) return;
+      const [sign,title,message] = outcomes[outcome];
+      lot.querySelector('.face').textContent = sign;
+      $('fortune').textContent = title;
+      $('advice').textContent = message;
+      $('reward').textContent = reward == null ? 'Гостевой листок' : 'Удача за сегодня: +' + reward;
+      $('drawStatus').textContent = '';
+      $('pickTitle').textContent = 'Твой листок';
+      lot.classList.add('chosen');
+      result.classList.add('revealed');
+      reading.hidden = false;
+      result.querySelector('.close').focus();
+    } catch {
+      if (!result.open || ticket !== round) return;
+      $('drawStatus').textContent = 'Не удалось открыть листок. Выбери ещё раз.';
+      for (const item of lots) item.disabled = false;
+      lot.focus();
+    }
+  };
+}
 async function loadCatalog() {
   for (const [id,,name,rarity,price,meaning,effect] of await catalog) {
     const card = document.createElement('article');

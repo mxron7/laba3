@@ -1,13 +1,13 @@
 import {renderCard,communityRoutes} from './community.js';
 import {url,key} from './config.js';
 
-export async function setupAccount(showDraw, guestDraw) {
+export async function setupAccount(guestDraw) {
   const panel = document.getElementById('profileBody');
   const draw = document.getElementById('draw');
   const status = document.getElementById('status');
   if (!url || !key) {
     panel.innerHTML = '<h2>Гостевой доступ</h2><p>Пока сад открыт для знакомства. Попробуй листок омикудзи или посмотри коллекцию талисманов.</p><a class="login" href="#home">К омикудзи</a>';
-    return;
+    return guestDraw;
   }
   const {createClient} = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm');
   const db = createClient(url,key);
@@ -54,16 +54,13 @@ export async function setupAccount(showDraw, guestDraw) {
     if (current) {const user = current; setTimeout(() => profile(user),0);}
     else form();
   });
-  draw.onclick = async () => {
+  return async () => {
     if (!current) return guestDraw();
-    draw.disabled = true;
-    try {
-      const {data,error} = await db.rpc('draw_today');
-      if (error) throw error;
-      const result = Array.isArray(data) ? data[0] : data;
-      showDraw(result.outcome,result.reward);
-      if (current) await profile(current);
-    } catch (error) {status.textContent = error.message;}
-    finally {draw.disabled = false;}
+    const user = current;
+    const {data,error} = await db.rpc('draw_today');
+    if (error) throw error;
+    if (current !== user) throw new Error('Аккаунт изменился. Открой листки заново.');
+    void profile(user);
+    return Array.isArray(data) ? data[0] : data;
   };
 }
