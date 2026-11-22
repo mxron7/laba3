@@ -81,7 +81,9 @@ export async function renderCard(db, panel, userId, owner, isCurrent) {
     preview.href='#player/'+userId;
     const logout = el('button','Выйти','secondary');
     logout.onclick=async()=>{const {error}=await db.auth.signOut(); if(error) note.textContent='Не удалось выйти.';};
-    actions.append(preview,logout);
+    const mail = el('a','Красные конверты'); mail.href='#mail';
+    const donate = el('a','Пополнить монеты'); donate.href='#donate';
+    actions.append(mail,donate,preview,logout);
     panel.append(actions);
   }
 }

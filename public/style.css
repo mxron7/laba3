@@ -58,9 +58,9 @@
 #reading p { margin: .55em 0; }
 #drawStatus:not(:empty) { margin-top: 12px; }
 @media (prefers-reduced-motion: no-preference) {
-  #result[open] .lot { animation: rise-in .55s backwards; }
-  #result[open] .lot:nth-child(2) { animation-delay: .08s; }
-  #result[open] .lot:nth-child(3) { animation-delay: .16s; }
+  #result.dealing .lot { animation: rise-in .55s backwards; }
+  #result.dealing .lot:nth-child(2) { animation-delay: .08s; }
+  #result.dealing .lot:nth-child(3) { animation-delay: .16s; }
   #result.revealed .lot { animation: none; }
   #result[open]::backdrop { animation: dim-in .35s ease-out; }
   #reading:not([hidden]) { animation: reading-in .35s .55s both; }
@@ -128,3 +128,16 @@ footer {gap:.75rem;flex-wrap:wrap}
   .pin-slot select {grid-column:2}
   .grid .charm-image {height:140px}
 }
+
+#result:not(.dealing):not(.revealed) .lot-stage {visibility: hidden}
+.post-layout {display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr)); gap:24px; align-items:start}
+.post-panel {background:#f2efe4; padding:clamp(16px,3vw,32px); border:1px solid #c9cabb; border-radius:8px}
+.post-panel h2 {margin-top:0}
+.post-panel textarea,.post-panel select {width:100%;margin:4px 0 16px;padding:10px;font:inherit;border:1px solid #9fa696;border-radius:4px}
+.person-row {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;overflow-wrap:anywhere}
+.letter {background:#983e34;color:#fff4dc;border:3px double #dca679;padding:14px 18px;margin:12px 0;border-radius:5px}
+.letter p {white-space:pre-wrap;overflow-wrap:anywhere;color:inherit;margin:8px 0}
+.letter a {text-decoration:underline}
+.demo-card {background:#334e42;color:#f6e5bb;display:grid;gap:18px;border-radius:12px;padding:20px;margin:14px 0;max-width:330px}
+.demo-card strong {font:clamp(16px,3vw,23px) monospace}
+#payForm {max-width:540px}

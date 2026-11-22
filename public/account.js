@@ -1,4 +1,5 @@
 import {renderCard,communityRoutes} from './community.js';
+import {setupPost} from './post.js';
 import {url,key} from './config.js';
 
 export async function setupAccount() {
@@ -45,11 +46,13 @@ export async function setupAccount() {
       if (current===user) panel.textContent = 'Не удалось загрузить профиль. Обнови страницу.';
     }
   }
+  const updatePost = setupPost(db, () => { if (current) void profile(current); });
   draw.disabled = true;
   let initialized;
   const initialSession = new Promise(resolve => { initialized = resolve; });
   db.auth.onAuthStateChange((_event, session) => {
     current = session?.user ?? null;
+    setTimeout(() => updatePost(current?.id ?? null),0);
     initialized();
     document.getElementById('account').hidden = Boolean(current);
     document.getElementById('profileLink').hidden = !current;

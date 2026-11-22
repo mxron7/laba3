@@ -10,11 +10,25 @@
   <a href="#profile" id="profileLink" hidden>Профиль</a>
 </div></nav>
 <main><section id="home"><div class="hero"><div class="intro"><span class="over">御神籤 &nbsp; / &nbsp; ОМИКУДЗИ</span><h1>Твоя удача<br><i>на сегодня</i></h1><p>Вытяни бумажный листок с предсказанием.<br>Каждый день сад готовит новый ответ.</p><button id="draw">Выбрать листок</button></div><div class="art" aria-hidden="true"><div class="sun"></div><div class="paper back"><strong>開運</strong></div><div class="paper front"><small>おみくじ</small><strong>御籤</strong><em>幸</em></div><span class="artlabel">САД УДАЧИ &nbsp; · &nbsp; 御神籤</span></div></div>
-<div class="below"><span class="over">ЕЖЕДНЕВНЫЙ РИТУАЛ</span><h2>Как устроен сад</h2><div class="steps"><article><b>01</b><h3>Открой листок</h3><p>Попробуй омикудзи в гостевом режиме или войди для ежедневного розыгрыша.</p></article><article><b>02</b><h3>Собирай удачу</h3><p>Каждый листок приносит от 5 до 30 единиц удачи в твой профиль.</p></article><article><b>03</b><h3><a href="#catalog">Изучи талисманы ↗</a></h3><p>Шесть оберегов, их истории и эффекты в каталоге сада.</p></article></div></div></section>
+</section>
 <section id="catalog" hidden><span class="over">お守り &nbsp; / &nbsp; КОЛЛЕКЦИЯ</span><h1>Талисманы</h1><p>Коллекция первой версии. Покупки появятся на следующем этапе.</p><div id="cards" class="grid"></div></section>
 <section id="ranking" hidden><span class="over">善 &nbsp; / &nbsp; ЩЕДРОСТЬ</span><h1>Самые щедрые</h1><p>Подаренная удача и поддержка чужих желаний.</p><div id="rankingBody" aria-live="polite"></div></section>
 <section id="player" hidden><span class="over">縁 &nbsp; / &nbsp; САД УЧАСТНИКА</span><h1>Профиль участника</h1><div id="playerBody"></div></section>
 <section id="profile" hidden><span class="over">縁 &nbsp; / &nbsp; ЛИЧНЫЙ КАБИНЕТ</span><h1>Профиль</h1><div id="profileBody"></div></section>
+<section id="mail" hidden><span class="over">手紙 / ПОДАРКИ</span><h1>Красные конверты</h1>
+<div id="mailGate"><a href="#profile">Войди, чтобы отправлять и получать удачу</a></div>
+<div id="mailTools" hidden class="post-layout">
+<div class="post-panel"><h2>Отправить конверт</h2>
+<form id="searchForm"><label>Имя получателя<input id="searchTerm" required maxlength="32" autocomplete="off"></label><button>Найти</button></form>
+<div id="matches" aria-live="polite"></div>
+<form id="giftForm" hidden><h3 id="recipientName"></h3><label>Сколько удачи<input id="giftAmount" type="number" min="1" max="2147483647" step="1" required></label>
+<label>Записка<textarea id="giftNote" maxlength="280" rows="3"></textarea></label><button>Отправить удачу</button></form><p id="giftStatus" role="status"></p></div>
+<div class="post-panel"><h2>Входящие</h2><div id="letters"></div><button id="older" hidden>Показать ещё</button><p id="inboxStatus" role="status"></p></div></div></section>
+<section id="donate" hidden><span class="over">銭 / МОНЕТЫ</span><h1>Тестовая оплата</h1>
+<div id="payGate"><a href="#profile">Войди для пополнения</a></div>
+<form id="payForm" class="post-panel" hidden><p>Демо-пополнение. Деньги не списываются.</p><div class="demo-card"><small>Тестовая карта</small><strong>4242 4242 4242 4242</strong></div>
+<label>Пакет монет<select id="package"><option value="100">100 монет</option><option value="500">500 монет</option><option value="1000">1000 монет</option></select></label>
+<button>Пополнить монеты</button><p id="payStatus" role="status"></p></form></section>
 <p id="status" role="status"></p></main><footer><span>縁 &nbsp; Сад удачи</span><span>Техподдержка · <a href="mailto:sivtceva.ny@dvfu.ru">sivtceva.ny@dvfu.ru</a></span></footer>
 <dialog id="result" aria-labelledby="pickTitle">
   <form method="dialog"><button class="close" aria-label="Закрыть">×</button></form>
