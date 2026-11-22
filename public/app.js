@@ -31,3 +31,7 @@ function guestDraw() {
   showDraw(keys[Math.floor(Math.random()*keys.length)]);
 }
 $('draw').onclick = guestDraw;
+import {setupAccount} from './account.js';
+setupAccount(showDraw,guestDraw).catch(() => {
+  $('profileBody').textContent = 'Сервис входа временно недоступен. Попробуй обновить страницу.';
+});
