@@ -106,28 +106,61 @@ export function setupPost(db, refreshProfile) {
       if (viewer === owner) byId('giftStatus').textContent = error.message || 'Не удалось отправить конверт.';
     } finally { if (viewer === owner) button.disabled = false; }
   };
+  const number = byId('demoNumber'), expiry = byId('demoExpiry'), code = byId('demoCode');
+  const fields = byId('payFields'), payStatus = byId('payStatus');
+  number.oninput = () => {
+    number.value = number.value.replace(/\D/g,'').slice(0,16).replace(/(\d{4})(?=\d)/g,'$1 ');
+    number.setCustomValidity('');
+  };
+  expiry.oninput = () => {
+    expiry.value = expiry.value.replace(/\D/g,'').slice(0,4).replace(/^(\d{2})(\d+)/,'$1/$2');
+    expiry.setCustomValidity('');
+  };
+  code.oninput = () => code.setCustomValidity('');
+  let checkoutVisit = 0;
+  window.addEventListener('hashchange',() => {
+    checkoutVisit++;
+    if (location.hash !== '#donate') {
+      payment.reset();
+      for (const input of [number,expiry,code]) input.setCustomValidity('');
+      payStatus.textContent = '';
+    }
+  });
   payment.onsubmit = async event => {
     event.preventDefault();
-    if (!viewer) return;
-    const owner = viewer;
+    if (!viewer || fields.disabled) return;
+    number.setCustomValidity(number.value.replace(/ /g,'') === '4242424242424242' ? '' : 'Введи номер тестовой карты из подсказки.');
+    expiry.setCustomValidity(expiry.value === '12/39' ? '' : 'Срок тестовой карты — 12/39.');
+    code.setCustomValidity(code.value === '123' ? '' : 'CVC тестовой карты — 123.');
+    if (!payment.reportValidity()) return;
+    const owner = viewer, visit = checkoutVisit;
     const coins = Number(byId('package').value);
-    const button = payment.querySelector('button');
-    if (button.disabled) return;
-    button.disabled = true;
+    fields.disabled = true;
+    payStatus.textContent = 'Проверяем тестовую оплату…';
     paymentRequest = request(paymentRequest,{coins});
     try {
-      await rpc('demo_top_up',{coins,token:paymentRequest.token});
+      await Promise.all([
+        rpc('demo_top_up',{coins,token:paymentRequest.token}),
+        new Promise(resolve => setTimeout(resolve,700))
+      ]);
       if (viewer !== owner) return;
       paymentRequest = null;
-      byId('payStatus').textContent = 'Зачислено ' + coins + ' монет.';
       refreshProfile();
+      if (visit !== checkoutVisit) return;
+      payment.reset();
+      payStatus.textContent = 'Оплачено · +' + coins + ' монет. Возвращаемся в профиль…';
+      await new Promise(resolve => setTimeout(resolve,1200));
+      if (viewer === owner && visit === checkoutVisit) location.hash = 'profile';
     } catch {
-      if (viewer === owner) byId('payStatus').textContent = 'Не удалось подтвердить пополнение. Попробуй ещё раз.';
-    } finally { if (viewer === owner) button.disabled = false; }
+      if (viewer === owner && visit === checkoutVisit) payStatus.textContent = 'Не удалось подтвердить оплату. Попробуй ещё раз.';
+    } finally { if (viewer === owner) fields.disabled = false; }
   };
   return id => {
     if (id === viewer) return;
     viewer = id;
+    checkoutVisit++;
+    fields.disabled = false;
+    for (const input of [number,expiry,code]) input.setCustomValidity('');
     searchVersion++;
     target = giftRequest = paymentRequest = null;
     for (const key of ['matches','letters','giftStatus','inboxStatus','payStatus']) byId(key).replaceChildren();

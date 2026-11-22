@@ -141,3 +141,8 @@ footer {gap:.75rem;flex-wrap:wrap}
 .demo-card {background:#334e42;color:#f6e5bb;display:grid;gap:18px;border-radius:12px;padding:20px;margin:14px 0;max-width:330px}
 .demo-card strong {font:clamp(16px,3vw,23px) monospace}
 #payForm {max-width:540px}
+
+#payFields {border:0;padding:0;margin:0;min-width:0}
+#payFields .demo-card {max-width:none;gap:12px}
+.demo-card input {margin-bottom:0}
+.card-pair {display:grid;grid-template-columns:1fr 1fr;gap:14px}
