@@ -35,3 +35,18 @@ import {setupAccount} from './account.js';
 setupAccount(showDraw,guestDraw).catch(() => {
   $('profileBody').textContent = 'Сервис входа временно недоступен. Попробуй обновить страницу.';
 });
+async function loadCatalog() {
+  const response = await fetch('./catalog.json');
+  if (!response.ok) throw new Error();
+  for (const [,symbol,name,rarity,price,meaning,effect] of await response.json()) {
+    const card = document.createElement('article');
+    for (const [tag,content] of [['b',symbol],['small',rarity+' · '+price+' монет'],['h3',name],['p',meaning],['p',effect]]) {
+      const element = document.createElement(tag);
+      if (tag === 'b') element.className = 'symbol';
+      element.textContent = content;
+      card.append(element);
+    }
+    $('cards').append(card);
+  }
+}
+loadCatalog().catch(() => {$('cards').textContent = 'Не удалось загрузить каталог. Обнови страницу.';});
