@@ -43,7 +43,7 @@ export async function renderShop(db, onPurchase) {
             status.textContent = error.message || 'Не удалось купить талисман.';
           }
         };
-        card.append(button,status);
+        card.append(status,button);
       }
       panel.append(card);
     }
