@@ -19,13 +19,14 @@ function el(tag, text, css) {
 }
 
 export async function renderCard(db, panel, userId, owner, isCurrent) {
-  const [cardResult, items, balanceResult] = await Promise.all([
+  const [cardResult, items, balanceResult, collection] = await Promise.all([
     db.rpc('profile_card',{player:userId}).maybeSingle(),
     catalog,
-    owner ? db.from('users').select('luck_balance,coin_balance').eq('id',userId).single() : null
+    owner ? db.from('users').select('luck_balance,coin_balance').eq('id',userId).single() : null,
+    owner ? db.from('user_talismans').select('effect').eq('user_id',userId) : null
   ]);
   if (!isCurrent()) return;
-  if (cardResult.error || balanceResult?.error) throw new Error('Не удалось загрузить профиль.');
+  if (cardResult.error || balanceResult?.error || collection?.error) throw new Error('Не удалось загрузить профиль.');
   const card = cardResult.data;
   if (!card) { panel.textContent = 'Профиль не найден.'; return; }
   const heading = el('div',null,'profile-heading');
@@ -55,7 +56,10 @@ export async function renderCard(db, panel, userId, owner, isCurrent) {
       const select = el('select');
       select.setAttribute('aria-label','Талисман в слоте '+position);
       select.add(new Option(item ? 'Снять талисман' : 'Выбрать талисман',''));
-      for (const [id,,name] of items) select.add(new Option(name,id));
+      for (const [id,,name] of items) {
+        if (collection.data.some(t => t.effect === id)) select.add(new Option(name,id));
+      }
+      select.disabled = !collection.data.length;
       select.value = item?.[0] || '';
       select.onchange = async () => {
         for (const field of slots.querySelectorAll('select')) field.disabled = true;
@@ -83,7 +87,8 @@ export async function renderCard(db, panel, userId, owner, isCurrent) {
     logout.onclick=async()=>{const {error}=await db.auth.signOut(); if(error) note.textContent='Не удалось выйти.';};
     const mail = el('a','Красные конверты'); mail.href='#mail';
     const donate = el('a','Пополнить монеты'); donate.href='#donate';
-    actions.append(mail,donate,preview,logout);
+    const shop = el('a','Магазин талисманов'); shop.href='#catalog';
+    actions.append(shop,mail,donate,preview,logout);
     panel.append(actions);
   }
 }

@@ -1,4 +1,5 @@
 import {renderCard,communityRoutes} from './community.js';
+import {renderShop} from './shop.js';
 import {setupPost} from './post.js';
 import {url,key} from './config.js';
 
@@ -47,12 +48,17 @@ export async function setupAccount() {
     }
   }
   const updatePost = setupPost(db, () => { if (current) void profile(current); });
+  function refreshShop() {
+    const user = current;
+    void renderShop(user && db, () => { if (current?.id === user?.id) void profile(current); });
+  }
+  window.addEventListener('hashchange', () => { if (location.hash === '#catalog') refreshShop(); });
   draw.disabled = true;
   let initialized;
   const initialSession = new Promise(resolve => { initialized = resolve; });
   db.auth.onAuthStateChange((_event, session) => {
     current = session?.user ?? null;
-    setTimeout(() => updatePost(current?.id ?? null),0);
+    setTimeout(() => { updatePost(current?.id ?? null); refreshShop(); },0);
     initialized();
     document.getElementById('account').hidden = Boolean(current);
     document.getElementById('profileLink').hidden = !current;

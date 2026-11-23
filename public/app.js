@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-import {catalog, talismanImage} from './community.js';
+import {renderShop} from './shop.js';
 const pages = ['home','catalog','profile','ranking','player','mail','donate'];
 function route() {
   const section = location.hash.slice(1).split('/')[0];
@@ -154,16 +154,4 @@ for (const lot of lots) {
     }
   };
 }
-async function loadCatalog() {
-  for (const [id,,name,rarity,price,meaning,effect] of await catalog) {
-    const card = document.createElement('article');
-    card.append(talismanImage(id));
-    for (const [tag,content] of [['small',rarity+' · '+price+' монет'],['h3',name],['p',meaning],['p',effect]]) {
-      const element = document.createElement(tag);
-      element.textContent = content;
-      card.append(element);
-    }
-    $('cards').append(card);
-  }
-}
-loadCatalog().catch(() => {$('cards').textContent = 'Не удалось загрузить каталог. Обнови страницу.';});
+void renderShop();
